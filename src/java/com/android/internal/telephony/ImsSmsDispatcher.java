@@ -151,18 +151,18 @@ public class ImsSmsDispatcher extends SMSDispatcher {
                         break;
                     case ImsSmsImplBase.SEND_STATUS_ERROR_RETRY:
                     case ImsSmsImplBase.SEND_STATUS_ERROR_FALLBACK:
-                    if (tracker.mRetryCount < MAX_SEND_RETRIES) {
-                        tracker.mRetryCount += 1;
-                        if(status == ImsSmsImplBase.SEND_STATUS_ERROR_FALLBACK) {
-                            tracker.mIsFallBackRetry = true;
+                        if (tracker.mRetryCount < MAX_SEND_RETRIES) {
+                            tracker.mRetryCount += 1;
+                            if(status == ImsSmsImplBase.SEND_STATUS_ERROR_FALLBACK) {
+                                tracker.mIsFallBackRetry = true;
+                            }
+                            Message retryMsg = obtainMessage(EVENT_SEND_RETRY, tracker);
+                            sendMessageDelayed(retryMsg, SEND_RETRY_DELAY);
+                        } else {
+                            Rlog.e(TAG,"onSendSmsResult Max retrys reaached: " + tracker.mRetryCount);
+                            tracker.onFailed(mContext, RESULT_ERROR_GENERIC_FAILURE, NO_ERROR_CODE);
+                            mTrackers.remove(token);
                         }
-                        Message retryMsg = obtainMessage(EVENT_SEND_RETRY, tracker);
-                        sendMessageDelayed(retryMsg, SEND_RETRY_DELAY);
-                    } else {
-                        Rlog.e(TAG,"onSendSmsResult Max retrys reaached: " + tracker.mRetryCount);
-                        tracker.onFailed(mContext, RESULT_ERROR_GENERIC_FAILURE, NO_ERROR_CODE);
-                        mTrackers.remove(token);
-                    }
                         break;
                     default:
                 }
